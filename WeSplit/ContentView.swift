@@ -14,9 +14,9 @@ struct ContentView: View {
     
     @FocusState private var amountIsFocused: Bool
     
-    let tipPercentages = [10, 15, 20, 25, 0]
+    let tipPercentages = [0...100]
     
-    var totalPerPerson : Double{
+    var totalPerPerson: Double {
         let peopleCount = Double(numberOfPeople + 2)
         let tipSelection = Double(tipPercentage)
         let tipValue = checkAmount / 100 * tipSelection
@@ -26,11 +26,15 @@ struct ContentView: View {
         return amountPerPerson
     }
     
+    var currencyFormat:FloatingPointFormatStyle<Double>.Currency{
+        return .currency(code: Locale.current.currencyCode ?? "USD")
+    }
+    
     var body: some View {
         NavigationView{
             Form{
                 Section{
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                    TextField("Amount", value: $checkAmount, format: currencyFormat)
                         .keyboardType(.decimalPad)
                         .focused($amountIsFocused)
                     
@@ -43,13 +47,21 @@ struct ContentView: View {
                 
                 Section{
                     Picker("Tip percentage", selection: $tipPercentage){
-                        ForEach(tipPercentages, id: \.self){
-                            Text($0, format: .percent)
+//                        ForEach(tipPercentages, id: \.self){
+//                            Text($0, format: .percent)
+                        ForEach(0..<101){
+                            Text("\($0) %")
                         }
                     }
-                    .pickerStyle(.segmented)
+//                    .pickerStyle(.segmented)
                 } header: {
                     Text("How much do you want to tip?")
+                }
+                
+                Section{
+                    Text(totalPerPerson * Double(numberOfPeople + 2), format: currencyFormat)
+                } header: {
+                    Text("Grand total (original amount + tip)")
                 }
                 
                 Section{
